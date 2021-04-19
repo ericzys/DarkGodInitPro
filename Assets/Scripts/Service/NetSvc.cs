@@ -1,8 +1,5 @@
 /****************************************************
     文件：NetSvc.cs
-	作者：SIKI学院——Plane
-    邮箱: 1785275942@qq.com
-    日期：2018/12/7 5:19:57
 	功能：网络服务
 *****************************************************/
 
@@ -11,7 +8,8 @@ using PENet;
 using PEProtocol;
 using UnityEngine;
 
-public class NetSvc : MonoBehaviour {
+public class NetSvc : MonoBehaviour
+{
     public static NetSvc Instance = null;
 
     private static readonly string obj = "lock";
@@ -19,12 +17,15 @@ public class NetSvc : MonoBehaviour {
     private Queue<GameMsg> msgQue = new Queue<GameMsg>();
 
 
-    public void InitSvc() {
+    public void InitSvc()
+    {
         Instance = this;
 
         client = new PESocket<ClientSession, GameMsg>();
-        client.SetLog(true, (string msg, int lv) => {
-            switch (lv) {
+        client.SetLog(true, (string msg, int lv) =>
+        {
+            switch (lv)
+            {
                 case 0:
                     msg = "Log:" + msg;
                     Debug.Log(msg);
@@ -47,34 +48,45 @@ public class NetSvc : MonoBehaviour {
         PECommon.Log("Init NetSvc...");
     }
 
-    public void SendMsg(GameMsg msg) {
-        if (client.session != null) {
+    public void SendMsg(GameMsg msg)
+    {
+        if (client.session != null)
+        {
             client.session.SendMsg(msg);
         }
-        else {
+        else
+        {
             GameRoot.AddTips("服务器未连接");
             InitSvc();
         }
     }
 
-    public void AddNetPkg(GameMsg msg) {
-        lock (obj) {
+    public void AddNetPkg(GameMsg msg)
+    {
+        lock (obj)
+        {
             msgQue.Enqueue(msg);
         }
     }
 
-    private void Update() {
-        if (msgQue.Count > 0) {
-            lock (obj) {
+    private void Update()
+    {
+        if (msgQue.Count > 0)
+        {
+            lock (obj)
+            {
                 GameMsg msg = msgQue.Dequeue();
                 ProcessMsg(msg);
             }
         }
     }
 
-    private void ProcessMsg(GameMsg msg) {
-        if (msg.err != (int)ErrorCode.None) {
-            switch ((ErrorCode)msg.err) {
+    private void ProcessMsg(GameMsg msg)
+    {
+        if (msg.err != (int)ErrorCode.None)
+        {
+            switch ((ErrorCode)msg.err)
+            {
                 case ErrorCode.AcctIsOnline:
                     GameRoot.AddTips("当前账号已经上线");
                     break;
@@ -84,7 +96,8 @@ public class NetSvc : MonoBehaviour {
             }
             return;
         }
-        switch ((CMD)msg.cmd) {
+        switch ((CMD)msg.cmd)
+        {
             case CMD.RspLogin:
                 LoginSys.Instance.RspLogin(msg);
                 break;
